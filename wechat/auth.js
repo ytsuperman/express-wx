@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const jsSHA = require("jssha");
-const { getUserDATA } = require('../utils/tool');
+const { getUserDATA, parsexmlasync } = require('../utils/tool');
 module.exports = () => {
   return async (req, res, next) => {
     console.log(req.query);
@@ -53,6 +53,33 @@ module.exports = () => {
       }
       const xmldata = await getUserDATA(req);
       console.log(xmldata);
+      const jsondata = await parsexmlasync(xmldata);
+      console.log(jsondata);
+      console.log(jsondata.xml.Content[0]);
+      let content = "";
+      if (jsondata.xml.MsgType[0] == "text")
+        console.log("11");
+      {
+        if (jsondata.xml.Content[0] == "1")
+        {
+          console.log("12");
+          content = "大吉大利，今晚吃鸡";
+        } else if (jsondata.xml.Content[0] == "2")
+        {
+          content = "落地成核";
+        } else if (jsondata.xml.Content[0].match("爱"))
+        {
+          content = "我爱你，兔小鸡"
+        } else
+        {
+          content = "你在说什么呀，难为小鸡我了"
+        }
+      }
+      let replay = `<xml>
+      <ToUserName><![CDATA[${jsondata.xml.FromUserName[0]}]]></ToUserName>
+      <FromUserName><![CDATA[${jsondata.xml.ToUserName[0]}]]></FromUserName><CreateTime>${Date.now()}</CreateTime>
+      <MsgType><![CDATA[text]]></MsgType><Content><![CDATA[${content}]]></Content></xml>`;
+      res.send(replay);
       res.end('');
     } else
     {
